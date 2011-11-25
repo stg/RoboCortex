@@ -359,7 +359,7 @@ static void draw_help( int draw ) {
 /* == JOYSTICK HELPERS ========================================================================== */
 static void joystick_init() {
   joy = SDL_JoystickOpen( 0 );
-  printf( "%i", joy );
+  printf( "%p", joy );
 }
 
 static int joystick_axis( int axis, int dz, int div ) {

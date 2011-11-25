@@ -3,6 +3,7 @@
 *.res
 /sam/bin/
 .dropbox
+.vagrant
 /work/
 /bin/cli.rc
 /bin/srv.rc
@@ -23,4 +24,5 @@ desktop.ini
 
 # Ignores for linux
 /lib-linux/
-# phrst?
+/bin/cli
+/bin/srv
