@@ -1,6 +1,18 @@
 #!/bin/sh
+set -e
 
-SPEECH="ESPEAK"
+case "$(uname)" in
+Linux)
+	LIB_DIR=./lib-linux
+;;
+Darwin)
+	LIB_DIR=./lib-osx
+	LFLAGS="-framework Cocoa"
+;;
+*) echo "Unknown platform '$(uname)'"; exit 1 ;;
+esac
+
+SPEECH="SAM"
 if [ "${SPEECH}" = "SAM" ]; then
 	SPEECH_LIBS="-lsam"
 	CFLAGS="${CFLAGS} -DUSE_SAM"
@@ -24,7 +36,7 @@ echo Compiling utils.c...
 gcc utils.c -c $CFLAGS -I./include -o utils.o
 
 echo Linking...
-gcc cli.o oswrap.o cli_term.o speech.o utils.o -L./lib-linux -l SDL -l avcodec -l avutil -l swscale -lz -lrcplug_cli $SPEECH_LIBS -o bin/cli
+gcc $LFLAGS cli.o oswrap.o cli_term.o speech.o utils.o -L"${LIB_DIR}" -lSDL -lSDLmain -lavcodec -lavutil -lswscale -lz -lrcplug_cli $SPEECH_LIBS -o bin/cli
 
 echo Cleaning up...
 rm *.o

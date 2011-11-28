@@ -23,7 +23,8 @@ desktop.ini
 /bin/*.bat
 /bin/std*.txt
 
-# Ignores for linux
+# Ignores for linux/os x
 /lib-linux/
+/lib-osx/
 /bin/cli
 /bin/srv

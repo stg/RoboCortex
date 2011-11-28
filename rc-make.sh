@@ -1,4 +1,5 @@
 #!/bin/sh
+set -ex
 cd sam
 ./sam-make.sh
 cd ..

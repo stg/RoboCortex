@@ -1,4 +1,5 @@
 #include "srv.h" // This is a server plugin
+#include <stdbool.h>
 
 #define ROT_DZN                3        // Dead-zone
 #define ROT_ACC                6        // Acceleration
@@ -39,7 +40,7 @@ static          long   integrate_r;     // Rotational(turn) integration
 static          void  *h_thread;        // Communications thread handle
 static           int   connected;       // Successfully connected
 
-static				  BOOL   bright = 0;			// Brithest possible smileys
+static          bool   bright = false; // Brightest possible smileys
 
 // Binary literals for emoticons
 #define B00000000 0x00
@@ -108,7 +109,7 @@ static int commthread() {
   unsigned char b, c, d;
   unsigned char color;
   unsigned char emoticon_last = 255, mod_last = 255;
-  BOOL bright_last = 0;
+  bool bright_last = false;
   char p_pkt[ 64 ] = { ( char )0xFF, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
   // Initial serial startup
@@ -187,7 +188,7 @@ static int commthread() {
 static void process_data( void* p_data, unsigned char size ) {
   int n;
   char data[ 256 ];
-  BOOL emo;
+  bool emo;
   memcpy( data, p_data, size );
   data[ size ] = 0;
   if( data[ 0 ] == '/' ) {
@@ -209,7 +210,7 @@ static void process_data( void* p_data, unsigned char size ) {
     printf( "KiwiRay [info]: Speaking: %s\n", data );
     for( n = 0; n < size - 1; n++ ) {
       if( data[ n ] == ':' ) {
-        emo = 1;
+        emo = true;
         switch( data[ n + 1 ] ) {
           case ')': emoticon = EL_HAPPY;
             break;
@@ -218,7 +219,7 @@ static void process_data( void* p_data, unsigned char size ) {
           case '|': emoticon = EL_MODERATE;
             break;
           default:
-            emo = 0;
+            emo = false;
         }
         if( emo ) {
           data[ n ] = ' ';
@@ -363,7 +364,7 @@ static void closer() {
 static void connect_status( int status ) {
   char data[ 256 ];
   connected = status;
-  bright = 0;
+  bright = false;
   emoticon = ( connected ? EL_CONNECT : EL_DISCONNECT );
   emoticon_timeout = timeout_emoticon;
   if( connected ) {

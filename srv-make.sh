@@ -1,9 +1,22 @@
 #!/bin/sh
+set -e
+
+case "$(uname)" in
+Linux)
+	LIB_DIR=./lib-linux
+	LFLAGS="-lhighgui"
+;;
+Darwin)
+	LIB_DIR=./lib-osx
+	LFLAGS="-framework Cocoa -lopencv_highgui"
+;;
+*) echo "Unknown platform '$(uname)'"; exit 1 ;;
+esac
 
 CFLAGS="-ggdb"
-LFLAGS="-ggdb"
+LFLAGS="$LFLAGS -ggdb"
 
-SPEECH="ESPEAK"
+SPEECH="SAM"
 if [ "${SPEECH}" = "SAM" ]; then
 	SPEECH_LIBS="-lsam"
 	CFLAGS="${CFLAGS} -DUSE_SAM"
@@ -28,7 +41,7 @@ echo Compiling utils.c...
 gcc utils.c -c $CFLAGS -I./include -o utils.o
 
 echo Linking...
-g++ capture.o srv.o oswrap.o speech.o utils.o $LFLAGS -L./lib-linux -lSDL -lcv -lhighgui -lx264 -lswscale -lavutil -lcv -lrcplug_srv $SPEECH_LIBS -o bin/srv
+g++ capture.o srv.o oswrap.o speech.o utils.o $LFLAGS -L"${LIB_DIR}" -lSDL -lSDLmain -lx264 -lswscale -lavutil -lrcplug_srv $SPEECH_LIBS -o bin/srv
 
 echo Cleaning up...
 rm *.o

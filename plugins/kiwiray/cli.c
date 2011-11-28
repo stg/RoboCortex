@@ -1,4 +1,5 @@
 #include "cli.h" // This is a client plugin
+#include <stdbool.h>
 
 static pluginclient_t  kiwiray;         // Plugin descriptor
 static pluginhost_t   *host;            // RoboCortex descriptor
@@ -16,7 +17,7 @@ static void lost_hooks() {
 // Handles keyboard events
 static void key_event( int event, int key, char ascii ) {
   unsigned char n;
-  BOOL emo;
+  bool emo;
   if( event == E_KEYDOWN ) {
     if( l_text >= 0 ) {
       switch( key ) {
@@ -40,14 +41,14 @@ static void key_event( int event, int key, char ascii ) {
 
               for( n = 0; n < strlen( p_text ); n++ ) {
                 if( p_text[ n ] == ':' ) {
-                  emo = 1;
+                  emo = true;
                   switch( p_text[ n + 1 ] ) {
                     case ')': 
                     case '(': 
                     case '|':
                       break;
                     default:
-                      emo = 0;
+                      emo = false;
                   }
                   if( emo ) {
                     p_text[ n ] = ' ';
