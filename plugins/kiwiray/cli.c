@@ -90,6 +90,8 @@ static void key_event( int event, int key, char ascii ) {
       host->server_send( "/MIRROR", 7 );
     } else if( key == SDLK_v ) {
       host->server_send( "/VOICE", 6 );
+    } else if( key == SDLK_i ) {
+      host->server_send( "/LIGHT", 6 );
     }
   }
 }
@@ -99,9 +101,11 @@ static void init() {
   host->key_bind( SDLK_t );
   host->key_bind( SDLK_m );
   host->key_bind( SDLK_v );
+  host->key_bind( SDLK_i );
   host->help_add( "T: OPEN SPEECH/COMMAND PROMPT" );
   host->help_add( "V: SET LANGUAGE/VOICE FOR SPEECH" );
   host->help_add( "M: TOGGLE REAR-VIEW MIRROR" );
+  host->help_add( "I: TOGGLE ILLUMINATION" );
 }
 
 // Handles messages from server plugin

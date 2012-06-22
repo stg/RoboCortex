@@ -1,0 +1,27 @@
+ARDUINO_BASE=/usr/share/arduino/hardware/arduino
+ARDUINO_SOURCE=$(ARDUINO_BASE)/cores/arduino/
+ARDUINO_VARIANTS=$(ARDUINO_BASE)/variants/
+
+DIRS_TO_CLEAN+=arduino
+
+arduino/%.c: $(ARDUINO_SOURCE)/%.c
+	mkdir -p `dirname $@`
+	cp $^ $@
+
+arduino/%.cpp: $(ARDUINO_SOURCE)/%.cpp
+	mkdir -p `dirname $@`
+	cp $^ $@
+
+COMMON_FLAGS += -I$(ARDUINO_SOURCE) -I$(ARDUINO_VARIANTS)/$(VARIANT) -DF_CPU=$(F_CPU) -DARDUINO=101
+
+
+CXX_SRC+=arduino/HardwareSerial.cpp \
+ arduino/Print.cpp \
+ arduino/Stream.cpp \
+ arduino/WString.cpp \
+ arduino/main.cpp
+
+SRC+=arduino/wiring.c \
+ arduino/wiring_analog.c \
+ arduino/wiring_digital.c \
+ #end OBJS

@@ -1,0 +1,19 @@
+Source: robocortex
+Section: unknown
+Priority: extra
+Maintainer: Toby Collett <thjc@plan9.net.nz>
+Build-Depends: debhelper (>= 8.0.0), libsdl1.2-dev, libhighgui-dev, libcv-dev, libx264-dev
+Standards-Version: 3.9.2
+Homepage: <insert the upstream URL, if relevant>
+
+Package: robocortex-server
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: robocortex-server
+ <insert long description, indented with spaces>
+
+Package: robocortex-client
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: robocortex-client
+ <insert long description, indented with spaces>

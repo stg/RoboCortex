@@ -1,7 +1,7 @@
 #include <string.h>
 #include "include/oswrap.h"
 #include <stdio.h>
-
+#include <errno.h>
 #ifdef _WIN32
 
 static WSADATA wsaData;
@@ -34,7 +34,7 @@ int serial_params( char* params ) {
 	dcb.fOutX = 0;
 	dcb.fInX = 0;
 	dcb.fRtsControl = 0;
-	
+
 	if( !SetCommState( h_serial, &dcb ) ) return( -1 );
 
 	// Configure buffers
@@ -81,11 +81,10 @@ int net_init() {
 #include <fcntl.h>
 
 
-int h_serial;
-int fd;
+static int h_serial;
 
 int serial_open( char* device ) {
-	int h_serial = open( device, O_RDWR | O_NOCTTY | O_NDELAY );
+	h_serial = open( device, O_RDWR | O_NOCTTY | O_NDELAY );
 	if( h_serial < 0 ) return( -1 );
 	return( 0 );
 }
@@ -95,21 +94,21 @@ int serial_params( char* params ) {
 	char* argv[ 4 ];
 	unsigned char argc;
 	char* p_parse;
-	
+	int ret;
+
 	// Parse params
 	p_parse = params;
 	argc = 1;
 	argv[ 0 ] = params;
 	while( *p_parse != 0 ) {
 		if( *p_parse == ',' ) {
-			*p_parse = 0;
 			if( argc > 3 ) return( -1 );
 			argv[ argc++ ] = ++p_parse;
 		} else {
 			p_parse++;
 		}
 	}
-	
+
 	// Configure baudrate
 	tcgetattr( h_serial, &options );
 	switch( atoi( argv[ 0 ] ) ) {
@@ -142,9 +141,10 @@ int serial_params( char* params ) {
 			cfsetospeed( &options, B115200 );
 			break;
 		default:
+			printf("Failed to set baud\n");
 			return( -1 );
 	}
-	
+
 	// Configure parity
 	switch( argv[ 1 ][ 0 ] ) {
 		case 'n': case 'N':
@@ -159,6 +159,7 @@ int serial_params( char* params ) {
 			options.c_cflag &= ~PARODD;
 			break;
 		default:
+			printf("Failed to set parity\n");
 			return( -1 );
 	}
 
@@ -172,11 +173,12 @@ int serial_params( char* params ) {
 			options.c_cflag |= CS7;
 			break;
 		default:
+			printf("Failed to set data bits\n");
 			return( -1 );
 	}
-	
+
 	// Configure stop bits
-	switch( argv[ 2 ][ 0 ] ) {
+	switch( argv[ 3 ][ 0 ] ) {
 		case '1':
 			options.c_cflag &= ~CSTOPB;
 			break;
@@ -184,15 +186,22 @@ int serial_params( char* params ) {
 			options.c_cflag |= CSTOPB;
 			break;
 		default:
+			printf("Failed to set stop bits: %c\n", argv[3][0]);
+
 			return( -1 );
-	}	
-	
+	}
+
 	// Configure timeouts
 	options.c_cc[VMIN] = 0;
 	options.c_cc[VTIME] = 1; // Wait for requested data 1/10 seconds
 	options.c_cflag |= CLOCAL | CREAD;
 
-	return( tcsetattr(fd, TCSANOW, &options) != 0 ) ;
+	ret = tcsetattr(h_serial, TCSANOW, &options);
+	if (ret != 0)
+	{
+		printf("Failed to set serial attr: %d %s\n",errno, strerror(errno));
+	}
+	return ret;
 }
 
 int serial_read( char* p_read, int i_read ) {
@@ -204,7 +213,7 @@ int serial_write( char* p_write, int i_write ) {
 }
 
 int serial_close() {
-	return( close( fd ) );
+	return( close( h_serial ) );
 }
 
 int net_init() {

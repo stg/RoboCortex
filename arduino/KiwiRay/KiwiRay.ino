@@ -26,7 +26,7 @@
 #define STEPSIZE( n ) digitalWrite( DS0, n & 1 ); \
                       digitalWrite( DS1, n & 2 ); \
                       digitalWrite( DS2, n & 4 );
-#define ENABLE( b )   digitalWrite( DEN, b );
+#define ENABLE( b )   digitalWrite( DEN, !b );
 #define X ( (int)( (char)buf[ 0 ] ) )
 #define Y ( (int)( (char)buf[ 1 ] ) )
 #define R ( (int)( (char)buf[ 2 ] ) )
@@ -190,7 +190,7 @@ void process() {
   if( addr & 0xFC ) {
     // start i2c
     Wire.beginTransmission( addr );
-    Wire.send( buf, len );
+    Wire.write( buf, len );
     Wire.endTransmission();
   } else {
     cli();
