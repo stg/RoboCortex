@@ -1,6 +1,7 @@
 #ifndef _ROBOCORTEX_H_
 #define _ROBOCORTEX_H_
 #include "SDL/SDL_video.h"
+#include <stdint.h>
 
 #define CORTEX_VERSION       3 // Current protocol revision
 #define CFG_TOKEN_MAX_SIZE  32 // Maxmimum length of a token value
@@ -20,39 +21,43 @@ enum kb_bitmask_e {
 
 // Visemes
 typedef struct {
-	unsigned char viseme;
-	unsigned int time;
-} viseme_t;
+	uint8_t viseme;
+	uint8_t pad[3];
+	uint32_t time;
+} __attribute__ ((packed)) viseme_t ;
 
 // DISP packet
 typedef struct {
-  unsigned char trust_srv;
-  unsigned char trust_cli;
-  int timer;
-} disp_data_t;
+  uint8_t trust_srv;
+  uint8_t trust_cli;
+  uint16_t pad;
+  int32_t timer;
+} __attribute__ ((packed)) disp_data_t;
 
 // Control data
 typedef struct {
-  long mx;
-  long my;
-  long dx;
-  long dy;
-  unsigned char kb; // kb_bitmask_e
-} ctrl_t;
+  int32_t mx;
+  int32_t my;
+  int32_t dx;
+  int32_t dy;
+  uint8_t kb; // kb_bitmask_e
+  uint8_t pad[3];
+} __attribute__ ((packed)) ctrl_t;
 
 // DATA packet
 typedef struct {
-  unsigned char trust_srv;
-  unsigned char trust_cli;
+  uint8_t trust_srv;
+  uint8_t trust_cli;
+  uint8_t pad[2];
   ctrl_t ctrl;
-} ctrl_data_t;
+} __attribute__ ((packed)) ctrl_data_t;
 
 // Linked buffer
 struct linked_buf_t {
-  char data[ 8192 ];
-  int size;
+  uint8_t data[ 8192 ];
+  int32_t size;
   struct linked_buf_t *next;
-};
+} __attribute__ ((packed));
 typedef struct linked_buf_t linked_buf_t;
 
 // Chunk
@@ -60,7 +65,7 @@ typedef struct {
   void *addr;
   int size;
   void *handler;
-} remote_t;
+} __attribute__ ((packed)) remote_t;
 
 extern char *config_rc;
 extern unsigned char term_w, term_h;

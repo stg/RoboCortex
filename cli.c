@@ -371,7 +371,7 @@ static int joystick_axis( int axis, int dz, int div ) {
   return( axis / div );
 }
 
-static void joystick_poll( long *mx, long *my, long *ix, long *iy ) {
+static void joystick_poll( int32_t *mx, int32_t *my, int32_t *ix, int32_t *iy ) {
   //SDL_JoystickUpdate();
   *mx  = joystick_axis( 0, 500,  256 );
   *my  = joystick_axis( 1, 500,  256 );
@@ -396,7 +396,7 @@ static void cursor_grab( int b_grab ) {
 
 // Poll cursor with warping support and grabbing detection
 // Adds any movement to incremental variables ix and iy
-static void cursor_poll( long *ix, long *iy ) {
+static void cursor_poll( int32_t *ix, int32_t *iy ) {
   static int ready = 0;
   static int lx = 0, ly = 0;
   int cx = 0, cy = 0;

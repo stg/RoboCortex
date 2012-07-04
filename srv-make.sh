@@ -4,7 +4,7 @@ set -e
 case "$(uname)" in
 Linux)
 	LIB_DIR=./lib-linux
-	LFLAGS="-lhighgui"
+	LFLAGS="-lopencv_highgui"
 ;;
 Darwin)
 	LIB_DIR=./lib-osx
