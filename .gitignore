@@ -1,5 +1,10 @@
 # General ignores
 *.o
+*.d
+*.elf
+*.eep
+*.hex
+*.map
 *.res
 /sam/bin/
 .dropbox
@@ -28,3 +33,11 @@ desktop.ini
 /lib-osx/
 /bin/cli
 /bin/srv
+
+#specific ignores
+.cproject
+.project
+arduino/KiwiRay/.cproject
+arduino/KiwiRay/.project
+arduino/KiwiRay/arduino
+bin/*.local

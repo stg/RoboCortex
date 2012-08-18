@@ -26,117 +26,44 @@
 #define STEPSIZE( n ) digitalWrite( DS0, n & 1 ); \
                       digitalWrite( DS1, n & 2 ); \
                       digitalWrite( DS2, n & 4 );
-#define ENABLE( b )   digitalWrite( DEN, !b );
-#define X ( (int)( (char)buf[ 0 ] ) )
-#define Y ( (int)( (char)buf[ 1 ] ) )
-#define R ( (int)( (char)buf[ 2 ] ) )
+#define ENABLE( b )   digitalWrite( DEN, !(b) );
+#define X ( (int16_t)( (int8_t)buf[ 0 ] ) )
+#define Y ( (int16_t)( (int8_t)buf[ 1 ] ) )
+#define R ( (int16_t)( (int8_t)buf[ 2 ] ) )
 
 // Math
 #define ABS( x ) ( x & 0x8000 ? ( ~x ) + 1 : x )
 
 // Communications handling
-unsigned char state, addr, len, got, buf[ 64 ];
+uint8_t state, addr, len, got, buf[ 64 ];
 
 // Frequency generation for the wheels 
-int          wheel[ 3 ] = { 0, 0, 0 };
-unsigned int whext[ 3 ];
-
-// Turtle drive
-int           turtle[ 3 ] = { 0, 0, 0 };
-unsigned char turtleindex[ 3 ];
-
-unsigned int  turtlespeed;
-int           turtleinteg, turtlecount;
-char          turtlemem[ 3 ];
-
-unsigned int  step0, step1, step2;
+int16_t       wheel[ 3 ] = { 0, 0, 0 };
+uint16_t      whext[ 3 ];
 
 // Connection loss protection
-unsigned long timer_data = 0;
+uint32_t timer_data = 1;
 
 // Power save on idle
-unsigned long timer_zero = 0;
-
-// Turtle
-unsigned char turtlemode = 0;
-
-unsigned char last0, last1, last2, new0, new1, new2;
+uint32_t timer_zero = 0;
 
 ISR( TIMER2_OVF_vect ) {
-  unsigned char temp_uc;
-  int temp_si;
-  
   TCNT2 = SPD;
 
-  if( turtlemode ) {
-
-    if( turtlemode == 1 ) {
-      if( turtlecount <= ( ABS( turtle[ turtleindex[ 0 ] ] ) >> 1 ) ) {
-        if( turtlespeed < 32767 ) turtlespeed++; // Accellerate
-      } else {
-        if( turtlespeed > 0 ) turtlespeed--; // Decellerate
-      }
-          
-      turtleinteg += turtlespeed;
-  
-      temp_uc = ( ( turtleinteg & 0x8000 ) != 0 );
-      if( temp_uc != turtlemem[ turtleindex[ 0 ] ] ) {
-        turtlemem[ turtleindex[ 0 ] ] = temp_uc;
-        if( ++turtlecount == ABS( turtle[ turtleindex[ 0 ] ] ) ) {
-          turtlemode = 2;
-          turtlespeed = 0;
-          wheel[ 0 ] = 0;
-          wheel[ 1 ] = 0;
-          wheel[ 2 ] = 0;
-          //Serial.write( 'D' );
-          Serial.write( step0 >> 8 );
-          Serial.write( step0 & 0xFF );
-          Serial.write( step1 >> 8 );
-          Serial.write( step1 & 0xFF );
-          Serial.write( step2 >> 8 );
-          Serial.write( step2 & 0xFF );
-        }
-        turtlemem[ turtleindex[ 1 ] ] = ( ( long )turtlecount * ( long )ABS( turtle[ turtleindex[ 1 ] ] ) ) / ABS( turtle[ turtleindex[ 0 ] ] );
-        turtlemem[ turtleindex[ 2 ] ] = ( ( long )turtlecount * ( long )ABS( turtle[ turtleindex[ 2 ] ] ) ) / ABS( turtle[ turtleindex[ 0 ] ] );
-      }
-
-      new0 = turtlemem[ 0 ] & 1;
-      new1 = turtlemem[ 1 ] & 1;
-      new2 = turtlemem[ 2 ] & 1;
-      if( new0 != last0 ) step0++;
-      if( new1 != last1 ) step1++;
-      if( new2 != last2 ) step2++;
-      last0 = new0;
-      last1 = new1;
-      last2 = new2;
-
-      digitalWrite( W0D, ( turtle[ 0 ] & 0x8000 ) != 0 );
-      digitalWrite( W1D, ( turtle[ 1 ] & 0x8000 ) != 0 );
-      digitalWrite( W2D, ( turtle[ 2 ] & 0x8000 ) != 0 );
-  
-  //    Serial.print( turtleindex[ 2 ] );
-      digitalWrite( W0S, turtlemem[ 0 ] & 1 );
-      digitalWrite( W1S, turtlemem[ 1 ] & 1 );
-      digitalWrite( W2S, turtlemem[ 2 ] & 1 );
-  
-      ENABLE( 1 );
-    }
-  } else {
-    digitalWrite( W0D, ( wheel[ 0 ] & 0x8000 ) != 0 );
-    digitalWrite( W1D, ( wheel[ 1 ] & 0x8000 ) != 0 );
-    digitalWrite( W2D, ( wheel[ 2 ] & 0x8000 ) != 0 );
-    whext[ 0 ] += ABS( wheel[ 0 ] );
-    whext[ 1 ] += ABS( wheel[ 1 ] );
-    whext[ 2 ] += ABS( wheel[ 2 ] );
-    digitalWrite( W0S, ( whext[ 0 ] & 0x8000 ) != 0 );
-    digitalWrite( W1S, ( whext[ 1 ] & 0x8000 ) != 0 );
-    digitalWrite( W2S, ( whext[ 2 ] & 0x8000 ) != 0 );
-    // Connection loss and idle detection
-    if( wheel[ 0 ] || wheel[ 1 ] || wheel[ 2 ] ) timer_zero = 10000; 
-    if( timer_data ) timer_data--;
-    if( timer_zero ) timer_zero--;
-    ENABLE( timer_data && timer_zero );
-  }
+  digitalWrite( W0D, ( wheel[ 0 ] & 0x8000 ) != 0 );
+  digitalWrite( W1D, ( wheel[ 1 ] & 0x8000 ) != 0 );
+  digitalWrite( W2D, ( wheel[ 2 ] & 0x8000 ) != 0 );
+  whext[ 0 ] += ABS( wheel[ 0 ] );
+  whext[ 1 ] += ABS( wheel[ 1 ] );
+  whext[ 2 ] += ABS( wheel[ 2 ] );
+  digitalWrite( W0S, ( whext[ 0 ] & 0x8000 ) != 0 );
+  digitalWrite( W1S, ( whext[ 1 ] & 0x8000 ) != 0 );
+  digitalWrite( W2S, ( whext[ 2 ] & 0x8000 ) != 0 );
+  // Connection loss and idle detection
+  if( wheel[ 0 ] || wheel[ 1 ] || wheel[ 2 ] ) timer_zero = 10000; 
+  if( timer_data ) timer_data--;
+  if( timer_zero ) timer_zero--;
+  ENABLE( timer_data && timer_zero );
 }   
 
 void setup() {
@@ -194,7 +121,6 @@ void process() {
     Wire.endTransmission();
   } else {
     cli();
-    turtlemode = 0;
     if( addr == 1 ) {
       // Addr 0x01: direct 16-bit motor control
       wheel[ 0 ] = *( int* )&buf[ 0 ];
@@ -205,33 +131,11 @@ void process() {
     } else if( addr == 0 ) {
       // Addr 0x00: 8-bit XYR control
       wheel[ 0 ] = ( X + R ) * 128;
-      wheel[ 1 ] = ( -0.5 * X - 0.866 * Y + R ) * 128;
-      wheel[ 2 ] = ( -0.5 * X + 0.866 * Y + R ) * 128;
+      wheel[ 1 ] = -64 * X + 110 * Y + R * 128;
+      wheel[ 2 ] = -64 * X - 110 * Y + R * 128;
       OCR0B = ( ( ( (unsigned int)buf[ 3 ] ) * 86 ) >> 8 ) + 48;
       STEPSIZE( buf[ 4 ] );
-    } else {
-      turtlemode = 1;
-      turtle[ 0 ] = *( int* )&buf[ 0 ];
-      turtle[ 1 ] = *( int* )&buf[ 2 ];
-      turtle[ 2 ] = *( int* )&buf[ 4 ];
-      if( ABS( turtle[ 0 ] ) > ABS( turtle[ 1 ] ) ) {
-        turtleindex[ 0 ] = ( ABS( turtle[ 0 ] ) > ABS( turtle[ 2 ] ) ) ? 0 : 2;
-      } else {
-        turtleindex[ 0 ] = ( ABS( turtle[ 1 ] ) > ABS( turtle[ 2 ] ) ) ? 1 : 2;
-      }
-      turtleindex[ 1 ] = ( turtleindex[ 0 ] + 1 ) % 3;
-      turtleindex[ 2 ] = ( turtleindex[ 0 ] + 2 ) % 3;
-      turtleinteg = 0;
-      turtlecount = 0;
-      turtlemem[ 0 ] = 0;
-      turtlemem[ 1 ] = 0;
-      turtlemem[ 2 ] = 0;
-      STEPSIZE( 6 );
-      step0 = 0;
-      step1 = 0;
-      step2 = 0;
-      Serial.write( 0xFF );
-    }
+    } 
   }
   sei();
 }
@@ -251,14 +155,12 @@ void loop() {
           state = 2;
         } else {
           state = 3;
-          if( addr & 2 ) {
-            len = 6;
-          } else {
-            if( addr & 1 ) {
+          switch (addr & 0x3) {
+            case 1:
               len = 8;
-            } else {  
+              break;
+            default:  
               len = 5;
-            }
           }
           timer_data = 10000;
         }
