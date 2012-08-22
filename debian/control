@@ -2,7 +2,7 @@ Source: robocortex
 Section: unknown
 Priority: extra
 Maintainer: Toby Collett <thjc@plan9.net.nz>
-Build-Depends: debhelper (>= 8.0.0), libsdl1.2-dev, libhighgui-dev, libcv-dev, libx264-dev
+Build-Depends: debhelper (>= 8.0.0), libsdl1.2-dev, libhighgui-dev (>= 2.4), libcv-dev (>=2.4), libx264-dev
 Standards-Version: 3.9.2
 Homepage: <insert the upstream URL, if relevant>
 

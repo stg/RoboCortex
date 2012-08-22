@@ -1,3 +1,22 @@
+robocortex (0.1.1-2) precise; urgency=low
+
+  * modify init script to use exec instead of name
+
+ -- Toby Collett <thjc@plan9.net.nz>  Sat, 18 Aug 2012 19:19:48 +0200
+
+robocortex (0.1.1-1) precise; urgency=low
+
+  * Fix up structures for 64bit
+  * Add illumination to Linux cli
+
+ -- Toby Collett <thjc@plan9.net.nz>  Fri, 22 Jun 2012 15:25:37 +0200
+
+robocortex (0.1-1) precise; urgency=low
+
+  * Fix up init scripts and force 2.4 version
+
+ -- Toby Collett <thjc@plan9.net.nz>  Thu, 24 May 2012 19:59:15 +0200
+
 robocortex (0.1) unstable; urgency=low
 
   * Initial Release.
